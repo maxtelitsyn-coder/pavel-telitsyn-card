@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Digital business card — Pavel Ivanovich Telitsyn / Телицын Павел Иванович" />
+  <title>Телицын П.И. — онлайн-визитка</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --ink: #1a1a1a;
+      --muted: #4a4a4a;
+      --line: #2c2c2c;
+      --paper: #f7f4ef;
+      --accent: #0b3d2e;
+      --accent-soft: #e8f0ec;
+      --shadow: 0 18px 40px rgba(20, 30, 25, 0.18);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      font-family: "Georgia", "Times New Roman", serif;
+      background:
+        radial-gradient(ellipse at top, #eef2ef 0%, transparent 55%),
+        linear-gradient(160deg, #d9e2dc 0%, #f3efe8 45%, #cfd8d2 100%);
+      color: var(--ink);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.1rem;
+      padding: 1.5rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      font-family: system-ui, sans-serif;
+    }
+
+    .toolbar button, .toolbar a.btn {
+      border: 1px solid var(--accent);
+      background: #fff;
+      color: var(--accent);
+      padding: 0.55rem 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: 0.15s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .toolbar button.active,
+    .toolbar button:hover,
+    .toolbar a.btn:hover,
+    .toolbar a.btn.primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .card {
+      width: min(92vw, 440px);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      position: relative;
+      border: 2px solid var(--line);
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border: 1px solid var(--line);
+      pointer-events: none;
+    }
+
+    .card-inner {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 0.4rem;
+      padding: 1.35rem 1.1rem 1.15rem 1.25rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.35rem;
+      min-width: 0;
+      padding-right: 0.25rem;
+    }
+
+    .name {
+      font-size: clamp(1.05rem, 3.6vw, 1.4rem);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .title {
+      font-size: clamp(0.75rem, 2.4vw, 0.92rem);
+      color: var(--muted);
+      margin-top: 0.15rem;
+    }
+
+    .org {
+      font-size: clamp(0.7rem, 2.2vw, 0.84rem);
+      line-height: 1.3;
+      color: var(--accent);
+      font-style: italic;
+      margin: 0.25rem 0 0.5rem;
+    }
+
+    .contacts {
+      font-family: system-ui, sans-serif;
+      font-size: clamp(0.68rem, 2vw, 0.8rem);
+      line-height: 1.5;
+      color: var(--ink);
+    }
+
+    .contacts a {
+      color: var(--ink);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(0,0,0,0.25);
+      word-break: break-all;
+    }
+
+    .qr-side {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      background: var(--accent-soft);
+      margin: -0.5rem -0.45rem -0.5rem 0;
+      border-left: 1px solid rgba(11, 61, 46, 0.15);
+      padding: 0.75rem 0.55rem;
+    }
+
+    #qrcode {
+      background: #fff;
+      padding: 6px;
+      border: 1px solid rgba(0,0,0,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #qrcode img, #qrcode canvas {
+      display: block;
+      width: clamp(96px, 22vw, 124px) !important;
+      height: clamp(96px, 22vw, 124px) !important;
+    }
+
+    .scan-hint {
+      font-family: system-ui, sans-serif;
+      font-size: 0.62rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-align: center;
+      max-width: 9rem;
+      line-height: 1.3;
+    }
+
+    .lang-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 2;
+      font-family: system-ui, sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(11,61,46,0.25);
+      padding: 0.15rem 0.4rem;
+    }
+
+    .note {
+      max-width: 440px;
+      text-align: center;
+      font-family: system-ui, sans-serif;
+      font-size: 0.85rem;
+      color: #334;
+      line-height: 1.45;
+    }
+
+    .note code {
+      font-size: 0.78rem;
+      background: rgba(255,255,255,0.7);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+    }
+
+    @media print {
+      body { background: #fff; padding: 0; min-height: auto; }
+      .toolbar, .note { display: none !important; }
+      .card { box-shadow: none; width: 90mm; }
+    }
+
+    @media (max-width: 480px) {
+      .card-inner { grid-template-columns: 1fr; }
+      .qr-side {
+        margin: 0.55rem 0 0;
+        border-left: none;
+        border-top: 1px solid rgba(11, 61, 46, 0.15);
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 0.85rem;
+        padding: 0.75rem 0.6rem;
+      }
+      .scan-hint { text-align: left; max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button type="button" id="btn-ru" class="active" onclick="setLang('ru')">Русский</button>
+    <button type="button" id="btn-en" onclick="setLang('en')">English</button>
+    <a class="btn primary" id="save-btn" href="contact.vcf" download="Telitsyn_Pavel.vcf"></a>
+    <button type="button" onclick="window.print()">Печать / Print</button>
+  </div>
+
+  <article class="card" aria-label="Business card">
+    <span class="lang-badge" id="lang-badge">RU</span>
+    <div class="card-inner">
+      <div class="info">
+        <h1 class="name" id="name"></h1>
+        <p class="title" id="title"></p>
+        <p class="org" id="org"></p>
+        <div class="contacts">
+          <div id="phone-line"></div>
+          <div id="email-line"></div>
+        </div>
+      </div>
+      <div class="qr-side">
+        <div id="qrcode"></div>
+        <div class="scan-hint" id="scan-hint"></div>
+      </div>
+    </div>
+  </article>
+
+  <p class="note" id="footer-note"></p>
+
+  <script>
+    // Public URL of this online card (GitHub Pages)
+    const CARD_URL = "https://maxtelitsyn-coder.github.io/pavel-telitsyn-card/";
+
+    const data = {
+      ru: {
+        name: "Телицын Павел Иванович",
+        title: "Президент ОИПЮЛ",
+        org: "«Национальная Ассоциация перевозчиков Казахстана»",
+        phoneLabel: "сот. тел.",
+        emailLabel: "e-mail",
+        scan: "Поделиться ссылкой",
+        save: "Сохранить контакт",
+        note: "Онлайн-визитка. Нажмите «Сохранить контакт» или отсканируйте QR, чтобы открыть эту страницу.",
+        badge: "RU"
+      },
+      en: {
+        name: "Pavel Ivanovich Telitsyn",
+        title: "President, Association of Legal Entities",
+        org: "National Association of Carriers of Kazakhstan",
+        phoneLabel: "Mobile",
+        emailLabel: "Email",
+        scan: "Share this page",
+        save: "Save contact",
+        note: "Online business card. Tap “Save contact” or scan the QR to open this page.",
+        badge: "EN"
+      },
+      phone: "+77018864501",
+      email: "anpk-kz@mail.ru",
+      email2: "pavelit63@gmail.com"
+    };
+
+    function setLang(lang) {
+      const t = data[lang];
+      document.getElementById("name").textContent = t.name;
+      document.getElementById("title").textContent = t.title;
+      document.getElementById("org").textContent = t.org;
+      document.getElementById("phone-line").innerHTML =
+        t.phoneLabel + ' <a href="tel:' + data.phone + '">' + data.phone + "</a>";
+      document.getElementById("email-line").innerHTML =
+        t.emailLabel + ': <a href="mailto:' + data.email + '">' + data.email + "</a><br>" +
+        t.emailLabel + ': <a href="mailto:' + data.email2 + '">' + data.email2 + "</a>";
+      document.getElementById("scan-hint").textContent = t.scan;
+      document.getElementById("footer-note").innerHTML = t.note + "<br><code>" + CARD_URL + "</code>";
+      document.getElementById("lang-badge").textContent = t.badge;
+      document.getElementById("save-btn").textContent = t.save;
+      document.documentElement.lang = lang === "ru" ? "ru" : "en";
+      document.getElementById("btn-ru").classList.toggle("active", lang === "ru");
+      document.getElementById("btn-en").classList.toggle("active", lang === "en");
+    }
+
+    function buildQr() {
+      const el = document.getElementById("qrcode");
+      el.innerHTML = "";
+      new QRCode(el, {
+        text: CARD_URL,
+        width: 128,
+        height: 128,
+        colorDark: "#0b3d2e",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+
+    setLang("ru");
+    buildQr();
+  </script>
+</body>
+</html>
